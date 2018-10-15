@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+         http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+         http://www.springframework.org/schema/context
+         http://www.springframework.org/schema/context/spring-context-3.0.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!--开启注解功能-->
+    <context:annotation-config/>
+    <!-- 扫描package，以完成Bean创建和自动依赖注入的功能 -->
+    <context:component-scan base-package="com.tddl.main"/>
+    <import resource="dataSource.xml"/>
+
+    <bean id="sqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+        <property name="configLocation" value="classpath:/sqlmap/sqlMapConfig_tddl.xml"/>
+        <property name="dataSource" ref="tddlDataSource"/>
+    </bean>
+
+    <!-- 配置ShardingSequenceDAO，多个ShardingSequence可共享一个ShardingSequenceDAO实例 -->
+    <bean id="sequenceDAO" class="com.taobao.tddl.client.sequence.impl.ShardingSequenceDAO" >
+        <property  name="dataSource">
+            <ref bean="tddlDataSource"/>
+        </property>
+    </bean>
+
+    <bean id="orderSequence" class="com.taobao.tddl.client.sequence.impl.ShardingSequence" >
+        <!-- 应用使用的分库分表字段，大小写无关，目前仅支持数字型的单字段，不支持复合字段 -->
+        <property name="shardingKeyName"><value>user_id</value></property>
+        <!-- Sequence数据表名，默认为LUDAL_SEQUENCE，大小写无关 -->
+        <property name="seqTableName"><value>order_sequence</value></property>
+        <!-- 序列名称，建议定义为"seq_"+"业务表名"，使用前请联系DBA初始化数据表记录 -->
+        <property name="sequenceName"><value>seq_order</value></property>
+        <!-- 数据库类型，支持Oracle和MySQL，默认MySQL，大小写无关 -->
+        <property name="dbType"><value>mysql</value></property>
+        <!-- SequenceDAO -->
+        <property name="sequenceDAO"><ref bean="sequenceDAO" /></property>
+    </bean>
+
+    <!---zk配置-->
+    <bean id="dbWeightzkClient" class="com.taobao.tddl.conf.client.ZkClient" init-method="init" destroy-method="close">
+        <property name="connectionTimeoutMs" value="${zk.connectionTimeoutMs}"/>
+        <property name="location" value="${zk.location}"/>
+        <property name="retryBaseSleepTimeMs" value="${zk.retryBaseSleepTimeMs}"/>
+        <property name="retryMaxRetries" value="${zk.retryMaxRetries}"/>
+        <property name="sessionTimeoutMs" value="${zk.sessionTimeoutMs}"/>
+    </bean>
+
+</beans>

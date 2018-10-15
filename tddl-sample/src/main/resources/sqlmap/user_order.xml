@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap
+        PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+<sqlMap namespace="USER_ORDER">
+
+    <sql id="selectAllFields">
+        id id,
+        created_at createdAt,
+        user_id userId,
+        order_content orderContent
+    </sql>
+
+    <insert id="insert" parameterClass="com.tddl.main.dto.UserOrderDto">
+        <![CDATA[
+            insert into user_order (
+                id,
+                created_at,
+                user_id,
+                order_content
+            )
+            values (
+                #id#,
+                now(),
+                #userId#,
+                #orderContent#
+            )
+        ]]>
+    </insert>
+
+    <select id="selectByUserId" parameterClass="java.util.Map" resultClass="com.tddl.main.dto.UserOrderDto">
+        select <include refid="selectAllFields" />
+        from user_order
+        where user_id=#userId#
+    </select>
+
+</sqlMap>
+
+

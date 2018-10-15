@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <import resource="common.xml"/>
+
+    <bean id="dataSource_m00" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${driverClassName}"/>
+        <property name="url" value="${jdbc.url_m00}"/>
+        <property name="username" value="${jdbc.username_m00}"/>
+        <property name="password" value="${jdbc.password_m00}"/>
+        <property name="initialSize" value="${initialSize}"/>
+        <property name="minIdle" value="${minIdle}"/>
+        <property name="maxIdle" value="${maxIdle}"/>
+        <property name="removeAbandonedTimeout" value="${removeAbandonedTimeout}"/>
+    </bean>
+
+
+    <bean id="dataSource_s00" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${driverClassName}"/>
+        <property name="url" value="${jdbc.url_s00}"/>
+        <property name="username" value="${jdbc.username_s00}"/>
+        <property name="password" value="${jdbc.password_s00}"/>
+        <property name="initialSize" value="${initialSize}"/>
+        <property name="minIdle" value="${minIdle}"/>
+        <property name="maxIdle" value="${maxIdle}"/>
+        <property name="removeAbandonedTimeout" value="${removeAbandonedTimeout}"/>
+    </bean>
+
+    <bean id="dataSource_m01" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${driverClassName}"/>
+        <property name="url" value="${jdbc.url_m01}"/>
+        <property name="username" value="${jdbc.username_m01}"/>
+        <property name="password" value="${jdbc.password_m01}"/>
+        <property name="initialSize" value="${initialSize}"/>
+        <property name="minIdle" value="${minIdle}"/>
+        <property name="maxIdle" value="${maxIdle}"/>
+        <property name="removeAbandonedTimeout" value="${removeAbandonedTimeout}"/>
+    </bean>
+
+    <bean id="dataSource_s01" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${driverClassName}"/>
+        <property name="url" value="${jdbc.url_s01}"/>
+        <property name="username" value="${jdbc.username_s01}"/>
+        <property name="password" value="${jdbc.password_s01}"/>
+        <property name="initialSize" value="${initialSize}"/>
+        <property name="minIdle" value="${minIdle}"/>
+        <property name="maxIdle" value="${maxIdle}"/>
+        <property name="removeAbandonedTimeout" value="${removeAbandonedTimeout}"/>
+    </bean>
+
+    <!-- 行复制源数据库数据源 -->
+    <bean id="tddlDataSource" class="com.taobao.tddl.client.jdbc.TDataSource" init-method="init">
+        <property name="rwDataSourcePool">
+            <map>
+                <!--命名规范ds0,ds1 or ds00,ds01这种带数字结尾-->
+                <entry key="ds0" value="dataSource_m00:r0w10, dataSource_s00:r10w0"/>
+                <entry key="ds1" value="dataSource_m01:r0w10, dataSource_s01:r10w0"/>
+            </map>
+        </property>
+        <!--userLocalConfig必须置为true，local配置的方式启动-->
+        <property name="useLocalConfig" value="true"/>
+        <!--isHintReplaceSupport 可以设置对hint replace的支持-->
+        <!--<property name="isHintReplaceSupport" value="true"/>
+        <!—路由规则的配置地址-->
+        <property name="appRuleFile" value="classpath:tddl-rule.xml"/>
+
+        <!--是否支持zk动态配置,如果支持，以下三项需要配置-->
+        <property name="supportZkConfigDbWeight" value="true"/>
+        <property name="dbWeightzkClientBean" ref="dbWeightzkClient"/>
+        <property name="appName" value="tddl"/>
+    </bean>
+
+</beans>

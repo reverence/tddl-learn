@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <bean id="root" class="com.taobao.tddl.common.config.beans.AppRule" init-method="init">
+        <property name="readwriteRule" ref="readwriteRule"/>
+    </bean>
+
+    <!--配置tableRules的bean，注意，entrykey就是sql中逻辑表的名字-->
+    <bean id="readwriteRule" class="com.taobao.tddl.common.config.beans.ShardRule">
+        <property name="dbtype" value="MYSQL"/>
+        <property name="tableRules">
+            <map>
+                <entry key="user_order" value-ref="userOrderRule"/>
+                <entry key="order_sequence" value-ref="sequenceRule"/>
+            </map>
+        </property>
+    </bean>
+
+
+    <bean id="userOrderRule" init-method="init" class="com.taobao.tddl.common.config.beans.TableRule">
+        <property name="dbIndexes"
+                  value="ds0,ds1"/>
+        <property name="dbRuleArray">
+            <list>
+                <value>((int)(#user_id# /2))%2</value>
+            </list>
+        </property>
+        <property name="tbRuleArray">
+            <list>
+                <value>#user_id# % 2</value>
+            </list>
+        </property>
+        <property name="tbSuffix" value="resetForEachDB:[_00-_01]"/><!--两张表-->
+        <property name="disableFullTableScan" value="true"/>
+    </bean>
+
+    <bean id="sequenceRule" init-method="init" class="com.taobao.tddl.common.config.beans.TableRule">
+        <property name="dbIndexes"
+                  value="ds0,ds1"/>
+        <property name="dbRuleArray">
+            <list>
+                <value>((int)(#user_id# /2))%2</value>
+            </list>
+        </property>
+        <property name="tbRuleArray">
+            <list>
+                <value>#user_id# % 2</value>
+            </list>
+        </property>
+        <property name="tbSuffix" value="resetForEachDB:[_00-_01]"/><!--两张表-->
+        <property name="disableFullTableScan" value="true"/>
+    </bean>
+</beans>
